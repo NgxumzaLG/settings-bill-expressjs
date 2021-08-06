@@ -2,6 +2,7 @@ const express = require('express');
 const exphbs  = require('express-handlebars');
 const bodyParser = require('body-parser');
 const BillWithSettings = require('./settings-bill');
+const moment = require('moment');
 
 const app = express();
 const settingsBill = BillWithSettings();
@@ -25,7 +26,8 @@ app.use(bodyParser.json())
 app.get("/", function(req, res){
     res.render("index", {
         settings: settingsBill.getSettings(),
-        totals: settingsBill.totals()
+        totals: settingsBill.totals(),
+        colors: settingsBill.totalClassName()
 
     });
 });
@@ -55,6 +57,8 @@ app.get('/actions', function(req, res) {
     res.render('actions', {
         actions: settingsBill.actions()
     });
+
+     
 
 });
 

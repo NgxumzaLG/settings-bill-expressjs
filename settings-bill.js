@@ -1,10 +1,13 @@
 
 module.exports = function BillWithSettings() {
+    const moment = require('moment');
+
     let callCost;
     let smsCost;
     let warningLevel;
     let criticalLevel;
     let actionList = [];
+    let momentList = [];
 
     function setSettings(settings) {
         callCost = Number(settings.callCost);
@@ -27,30 +30,58 @@ module.exports = function BillWithSettings() {
     function recordAction(action) {
         let cost = 0;
 
-        if (action === "call") {
-            cost = callCost;
+        if (grandTotal() < criticalLevel) {
+            if (action === "call") {
+                cost = callCost;
+    
+            } else if (action === "sms") {
+                cost = smsCost;
+    
+            }
+    
+            if (cost != 0) {
+                actionList.push({
+                    type: action,
+                    cost,
+                    timestamp: new Date()
+                    
+                });
+    
+                momentList.push({
+                    type: action,
+                    cost,
+                    timestamp : new Date()
 
-        } else if (action === "sms") {
-            cost = smsCost;
-
+                });
+            }
+    
+            for (let i = 0; i < momentList.length; i++) {
+                let timestamp = moment(actionList[i].timestamp).format('YYYY-MM-DD hh:mm:ss a');
+                momentList[i].timestamp = (moment(timestamp, 'YYYY-MM-DD hh:mm:ss a').fromNow());
+                
+            }
         }
-
-        actionList.push({
-            type: action,
-            cost,
-            timestamp: new Date()
-            
-        });
     }
 
     function actions(){
-        return actionList;
+        return momentList;
 
     }
 
     function actionsFor(type){
-        return actionList.filter((action) => action.type === type);
-        
+        const filteredActions = [];
+
+        // loop through all the entries in the action list 
+        for (let index = 0; index < momentList.length; index++) {
+            const action = momentList[index];
+            // check this is the type we are doing the total for 
+            if (action.type === type) {
+                // add the action to the list
+                filteredActions.push(action);
+            }
+        }
+
+        return filteredActions;  
     }
 
     function getTotal(type){
@@ -75,6 +106,7 @@ module.exports = function BillWithSettings() {
             callTotal,
             smsTotal,
             grandTotal: grandTotal()
+
         }
     }
 
@@ -90,6 +122,17 @@ module.exports = function BillWithSettings() {
 
         return total >= criticalLevel;
     }
+
+    function totalClassName(){
+        if (hasReachedWarningLevel()){
+            return 'warning';
+
+        }
+        else if (hasReachedCriticalLevel()){
+            return 'danger';
+
+        }
+    }
    
     return {
         setSettings,
@@ -101,7 +144,8 @@ module.exports = function BillWithSettings() {
         grandTotal,
         totals,
         hasReachedWarningLevel,
-        hasReachedCriticalLevel
+        hasReachedCriticalLevel,
+        totalClassName
 
     }
 }
