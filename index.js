@@ -54,18 +54,40 @@ app.post('/action', function(req, res) {
 });
 
 app.get('/actions', function(req, res) {
-    res.render('actions', {
-        actions: settingsBill.actions()
-    });
+    let strMoment = settingsBill.actions();
+    let momentList = [];
+    
+    for (let i = 0; i < strMoment.length; i++) {
+        momentList.push({
+            type: strMoment[i].type,
+            cost: strMoment[i].cost,
+            timestamp : (moment(strMoment[i].timestamp, 'YYYY-MM-DD hh:mm:ss a').fromNow())
 
-     
+        }); 
+    };
+
+    res.render('actions', {
+        actions: momentList
+    });
 
 });
 
 app.get('/actions/:actionType', function(req, res) {
     const actionType = req.params.actionType;
+    let strMomentType = settingsBill.actionsFor(actionType);
+    let momentListType = [];
+    
+    for (let i = 0; i < strMomentType.length; i++) {
+        momentListType.push({
+            type: strMomentType[i].type,
+            cost: strMomentType[i].cost,
+            timestamp : (moment(strMomentType[i].timestamp, 'YYYY-MM-DD hh:mm:ss a').fromNow())
+
+        }); 
+    };
+
     res.render('actions', {
-        actions: settingsBill.actionsFor(actionType)
+        actions: momentListType
     });
 
 });

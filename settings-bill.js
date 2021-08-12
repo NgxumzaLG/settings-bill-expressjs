@@ -1,13 +1,11 @@
 
 module.exports = function BillWithSettings() {
-    const moment = require('moment');
 
     let callCost;
     let smsCost;
     let warningLevel;
     let criticalLevel;
     let actionList = [];
-    let momentList = [];
 
     function setSettings(settings) {
         callCost = Number(settings.callCost);
@@ -46,25 +44,12 @@ module.exports = function BillWithSettings() {
                     timestamp: new Date()
                     
                 });
-    
-                momentList.push({
-                    type: action,
-                    cost,
-                    timestamp : new Date()
-
-                });
-            }
-    
-            for (let i = 0; i < momentList.length; i++) {
-                let timestamp = moment(actionList[i].timestamp).format('YYYY-MM-DD hh:mm:ss a');
-                momentList[i].timestamp = (moment(timestamp, 'YYYY-MM-DD hh:mm:ss a').fromNow());
-                
-            }
+            }   
         }
     }
 
     function actions(){
-        return momentList;
+        return actionList;
 
     }
 
@@ -72,8 +57,8 @@ module.exports = function BillWithSettings() {
         const filteredActions = [];
 
         // loop through all the entries in the action list 
-        for (let index = 0; index < momentList.length; index++) {
-            const action = momentList[index];
+        for (let index = 0; index < actionList.length; index++) {
+            const action = actionList[index];
             // check this is the type we are doing the total for 
             if (action.type === type) {
                 // add the action to the list
